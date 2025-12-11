@@ -31,24 +31,42 @@ def group_icd9(code):
     except:
         return np.nan
 
-    if 390 <= code <= 459 or code == 785:
-        return "circulatory"
-    elif 460 <= code <= 519 or code == 786:
-        return "respiratory"
-    elif 520 <= code <= 579 or code == 787:
-        return "digestive"
-    elif 250 <= code < 251:
-        return "diabetes"
-    elif 800 <= code <= 999:
-        return "injury"
-    elif 710 <= code <= 739:
-        return "musculoskeletal"
-    elif 580 <= code <= 629 or code == 788:
-        return "genitourinary"
+    if 1 <= code <= 139:
+        return "Infectious Diseases"
     elif 140 <= code <= 239:
-        return "neoplasms"
+        return "Neoplasms"
+    elif 240 <= code <= 279:
+        return "Endocrine/Metabolic"
+    elif 280 <= code <= 289:
+        return "Blood Diseases"
+    elif 290 <= code <= 319:
+        return "Mental Disorders"
+    elif 320 <= code <= 389:
+        return "Nervous System"
+    elif 390 <= code <= 459:
+        return "Circulatory"
+    elif 460 <= code <= 519:
+        return "Respiratory"
+    elif 520 <= code <= 579:
+        return "Digestive"
+    elif 580 <= code <= 629:
+        return "Genitourinary"
+    elif 630 <= code <= 679:
+        return "Pregnancy"
+    elif 680 <= code <= 709:
+        return "Skin"
+    elif 710 <= code <= 739:
+        return "Musculoskeletal"
+    elif 740 <= code <= 759:
+        return "Congenital"
+    elif 760 <= code <= 779:
+        return "Perinatal"
+    elif 780 <= code <= 799:
+        return "Symptoms"
+    elif 800 <= code <= 999:
+        return "Injury/Poisoning"
     else:
-        return "other"
+        return "Unknown"
 
 
 def group_diagnoses(df):
@@ -113,6 +131,11 @@ def clean_data(save=True, readmission_mode="binary"):
     print("Replacing placeholder missing values...")
     df = replace_missing(df)
 
+    print("Creating diagnosis group features...")
+    df["diag_1_group"] = df["diag_1"].apply(group_icd9)
+    df["diag_2_group"] = df["diag_2"].apply(group_icd9)
+    df["diag_3_group"] = df["diag_3"].apply(group_icd9)
+
     print("Grouping ICD-9 diagnosis codes...")
     df = group_diagnoses(df)
 
@@ -122,8 +145,8 @@ def clean_data(save=True, readmission_mode="binary"):
     print("Dropping sparse/unnecessary columns...")
     df = drop_sparse_columns(df)
 
-    print("One-hot encoding categorical features...")
-    df = encode_categoricals(df)
+    #print("One-hot encoding categorical features...")
+    #encoded_df = encode_categoricals(df)
 
     if save:
         output_path = PROCESSED_DIR / "diabetes_clean.csv"
